@@ -1,10 +1,12 @@
 import os
 from inventoryclass import Inventory
+from utils import pause, ask_int, ask_yes_no, ask_float, clear
+
 
 def maingame():
     player = Inventory("player")
     while True:
-        os.system('cls')
+        clear()
         print("Welcome to the Inventory RPG")
         print("1. See your inventory")
         print("2. Add items to your inventory")
@@ -12,40 +14,45 @@ def maingame():
         print("4. See your inventory worth")
         print("5. Exit")
 
-        try:
-            option = int(input("What do you choose?: "))
-        except ValueError:
-            input("You can ONLY TYPE NUMBERS, Enter to go back: ")
-            continue
+        option = ask_int("What do you choose?: ")
         
         match option:
             case 1:
+                clear()
                 player.show_items()
+                pause()
 
             case 2:
+                clear()
                 name = input("Name of the item?: ")
                 category = input("Category of the item?: ")
-                while True:
-                    try:
-                        value = int(input("Value of the item?: "))
-                    except ValueError:
-                        input("You can only type numbers for the value. Enter to try again: ")
-                        continue
-                    break
+                value = ask_float("Value?: ")
                 player.add_item(name, category, value)
+                pause("Succesfully added item! Enter to continue... ")
 
             case 3:
-                player.delete_item()
+                clear()
+                if player.show_items():
+                    index = ask_int("Type the number of the item to delete: ")
+                    if ask_yes_no("Are you sure you want to delete this item?"):  
+                        if player.delete_item(index-1):
+                            pause("The item was deleted succesfully. ")
+                        else:
+                            pause(f"The item with index {index} was not found. ")
+                    else:
+                        pause("Deletion cancelled. ")
             
             case 4:
-                print(player.get_total_value())
-                input("Enter to go back: ")
+                clear()
+                total = player.get_total_value()
+                if total == 0:
+                    pause("You have no items, your inventory is worth $0. ")
+                else:
+                    pause(f"Total worth of your Inventory: ${total}. ")
             case 5:
                 break
             case _:
-                input("Not a valid option. Enter to try again. ")
+                pause("Not a valid option. Enter to try again. ")
                 
 if __name__ == "__main__":
     maingame()
-
-
